@@ -6,7 +6,9 @@ End-to-end analysis of a **Rp 7.8B digital marketing funnel** (308.7M impression
 **🔗 Live dashboard:** [Looker Studio](https://datastudio.google.com/reporting/f09d0d15-172e-4457-9c08-875a0b66bee6)
 
 
-![Dashboard preview](<dashboard/dashboard - digital marketing.png>)
+![Dashboard preview]
+<img width="897" height="694" alt="image" src="https://github.com/user-attachments/assets/f1176155-cc37-484e-9abe-ff870f1a5d63" />
+
 
 ---
 
