@@ -160,7 +160,7 @@ print("\nJumlah channel final:", cn['channel'].nunique())   # → 6
 
 ### Analysis lenses 
 
--- Funnel overview | impressions → clicks → conversions, CTR, CVR 
+- Funnel overview | impressions → clicks → conversions, CTR, CVR 
 ````
 SELECT
 	'impressions' AS funnel,
