@@ -61,23 +61,11 @@ Channels are segmented by lead volume and average lead score against portfolio a
 
 <sub>*Instagram sits within 0.15 pts of the quality threshold — treated as directional, see Limitations.</sub>
 
----
 
-## Data Quality Audit
-
-Three material issues were found, verified, and resolved with documented decisions:
-
-| # | Finding | Evidence | Decision |
-|---|---|---|---|
-| 1 | **Cross-objective lead misattribution** — dataset docs claim leads only come from `lead_gen` campaigns, but 48.8% of leads (1,221 / 2,500) attach to `conversions`-objective campaigns | Verification join `leads × campaigns.objective` | CPL defined strictly on `lead_gen` campaigns (1,279 leads); other leads treated as by-product. The initial unfiltered CPL distorted per-channel lead scores by **up to 4 points** (TikTok: 48.4 → 52.4) |
-| 2 | **Revenue tracking covers only 0.3% of conversion volume** — `conversions` holds 400 tracked records vs 145,461 conversions in `ad_spend` | Row-count reconciliation | **ROAS excluded from reporting** (would be denominated against untracked volume). Revenue retained only as per-tracked-record metrics (AOV, avg CAC) with explicit n=400 caveat |
-| 3 | **Cross-table spend discrepancy** — `campaigns.actual_spend_idr` totals ≈ Rp 13.2B vs `SUM(ad_spend.spend_idr)` ≈ Rp 7.8B | Per-campaign reconciliation query | `ad_spend.spend_idr` chosen as single source of truth (daily grain, date-filterable, consistent with CPA/CPC) |
-
----
 
 ## Methodology
 
-### 1. Cleaning (Python / pandas)
+### Cleaning (Python / pandas)
 - Normalized channel name variants to a single canonical label per channel
   
 ````  
@@ -169,17 +157,12 @@ print("\nJumlah channel final:", cn['channel'].nunique())   # → 6
 
 ````
 
-### 2. Modeling (PostgreSQL)
-- 5-table schema with PK/FK constraints and CHECK constraints (see [`sql/01_schema.sql`](sql/01_schema.sql))
-- All rates computed from raw counts at query time — **never** `AVG()` over stored per-row rates (unweighted averages mislead)
-- NULL-safe math throughout (`NULLIF` denominators, `COALESCE` on nullable counts)
-- LEFT JOINs wherever a dimension must keep zero-activity rows (inner joins were shown to overstate ROAS ~3x)
 
-### 3. Analysis lenses (see [`sql/`](sql/))
-| Lens | Metrics | File |
-|---|---|---|
-| Funnel overview | impressions → clicks → conversions, CTR, CVR | `02_funnel_overview.sql` 
-````SELECT
+### Analysis lenses 
+
+-- Funnel overview | impressions → clicks → conversions, CTR, CVR 
+````
+SELECT
 	'impressions' AS funnel,
 	SUM(impressions) AS total
 FROM ad_spend 
@@ -198,9 +181,8 @@ SELECT
 	SUM(conversions) AS total
 FROM ad_spend 
 ````
-| Channel cost efficiency | CPA, CPC per channel | `03_channel_performance.sql` |
-| Lead generation | CPL (lead_gen only), weighted avg lead score, quadrant segmentation | `04_cpl_lead_quality.sql` |
-| Data quality checks | coverage, reconciliation, misattribution | `05_data_quality_checks.sql` |
+
+- Lead generation | CPL (lead_gen only), weighted avg lead score, quadrant segmentation 
 ````
 WITH spend_campaigns AS(
 SELECT 
@@ -289,44 +271,8 @@ SELECT
     END AS performance_segment
 FROM channel_performance
 ````
-### 4. Dashboard (Looker Studio)
-- KPI scorecards · proportional funnel · CPA & CPC bars (separate axes) · CPL bars · volume-vs-quality quadrant scatter with average reference lines
-- Scope separation: overall funnel metrics vs an explicitly labeled **"Lead Gen Campaign only"** panel
-- Channel filter + date range controls
 
----
 
-## Limitations
-
-- **Synthetic data**: rate metrics show far narrower variance across channels (CTR 1.74–1.80%, CVR 2.62–2.75%) than real-world benchmarks, so insights focus on budget allocation and absolute cost efficiency rather than rate comparisons.
-- **Quality segmentation is directional**: lead scores span only ~5 points; channels near a threshold can flip quadrants.
-- **ROAS not reported**: revenue tracking covers 0.3% of conversion volume (see audit finding #2).
-- **On production data, my first steps would be**: validating conversion tracking (NULL semantics & attribution window) and reconciling derived metrics against raw counts.
-
----
-
-## Repository Structure
-
-```
-kreanara-marketing-funnel/
-├── README.md
-├── data/
-│   └── raw/                      # 5 source CSVs (or generation script)
-├── notebooks/
-│   └── 01_cleaning_validation.ipynb
-├── sql/
-│   ├── 01_schema.sql             # DDL: tables, constraints, enums
-│   ├── 02_funnel_overview.sql
-│   ├── 03_channel_performance.sql
-│   ├── 04_cpl_lead_quality.sql
-│   └── 05_data_quality_checks.sql
-├── dashboard/
-│   └── channel_performance.png   # dashboard screenshot(s)
-└── docs/
-    └── decisions.md              # decision log (optional, can live in README)
-```
-
----
 
 ## Author
 
