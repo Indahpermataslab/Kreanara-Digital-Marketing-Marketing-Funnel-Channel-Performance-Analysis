@@ -1,7 +1,7 @@
 
 # Kreanara Digital Marketing — Marketing Funnel & Channel Performance Analysis
 
-End-to-end analysis of a **Rp 7.8B digital marketing funnel** (308.7M impressions → 5.4M clicks → 145.5K conversions) across 6 channels — from raw CSVs to an interactive dashboard, including a **data quality audit** on a synthetic dataset with deliberately injected defects.
+End-to-end analysis of a **Rp 7.8B digital marketing funnel** (308.7M impressions → 5.4M clicks → 145.5K conversions) across 6 channels, from raw CSVs to an interactive dashboard, including a **data quality audit** on a synthetic dataset with deliberately injected defects.
 
 **🔗 Live dashboard:** [Looker Studio](https://datastudio.google.com/reporting/f09d0d15-172e-4457-9c08-875a0b66bee6)
 
